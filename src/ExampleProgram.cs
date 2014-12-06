@@ -11,7 +11,7 @@
  *
  * Permission is granted to anyone to use this software for any non-commercial
  * project as long as the following requirements are met:
- *Ser
+*
  * 1. Sergio Alonso must be credited as the original author of NoobOSDL even
  * if you modify it's source files. Thanks must be given to Ethan Lee for his
  * work on SDL2-C# port.

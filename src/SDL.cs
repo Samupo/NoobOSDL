@@ -20,8 +20,13 @@
  * misrepresented as being the original software.
  *
  * 3. This notice may not be removed or altered from any source distribution.
+ * 
+ * If you want to use this software for a commercial project you need to ask
+ * for permission to do so at samupo@noobogames.com
  *
- * Serio "Samupo" Alonso <samupo@noobogames.com>
+ * Sergio "Samupo" Alonso <samupo@noobogames.com>
+ * 
+ * 
  * Ethan "flibitijibibo" Lee <flibitijibibo@flibitijibibo.com>
  *
  */

@@ -190,7 +190,7 @@ namespace NoobOSDL
 
         private static Audio DoLoadAudio(string file)
         {
-            return new Audio(Mix_LoadWAV(file));
+            return new Audio(Mix_LoadWAV_RW(SDL_RWFromFile(file, "rb"), 1));
         }
         #endregion
 
@@ -245,8 +245,8 @@ namespace NoobOSDL
         #endregion
 
         #region NATIVE
-        [DllImport(SDL.NATIVELIB, EntryPoint = "SDL_RWFromFile", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr INTERNAL_SDL_RWFromFile(
+        [DllImport(SDL.NATIVELIB, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr SDL_RWFromFile(
         [In()] [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUtf8StrMarshaler))]
 string file,
         [In()] [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUtf8StrMarshaler))]
@@ -259,11 +259,8 @@ string mode
         int freesrc
         );
 
-        private static IntPtr Mix_LoadWAV(string file)
-        {
-            IntPtr rwops = INTERNAL_SDL_RWFromFile(file, "rb");
-            return Mix_LoadWAV_RW(rwops, 1);
-        }
+        [DllImport(SDL.MIXLIB, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr Mix_LoadWAV([In()] [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUtf8StrMarshaler))] string file);
 
         [DllImport(SDL.MIXLIB, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr Mix_LoadMUS([In()] [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUtf8StrMarshaler))] string file);

@@ -56,7 +56,7 @@ namespace TestProject
             Music music =  ResourceManager.LoadMusic("music.mp3");
             music.PlayFadeIn(10000);
 
-            Audio audio = ResourceManager.LoadAudio("audio.wav");
+            Audio audio = ResourceManager.LoadAudio("audio.ogg");
             audio.Play();
 
 

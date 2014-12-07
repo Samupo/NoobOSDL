@@ -182,7 +182,7 @@ namespace NoobOSDL
             Initialize(InitializeModule.INIT_VIDEO | InitializeModule.INIT_AUDIO);
             IMG_Init((uint)ImageMode.IMG_INIT_PNG);
             TTF_Init();
-            Console.WriteLine(Mix_Init((uint)MIX_InitFlags.MIX_INIT_ALL));
+            Mix_Init((uint)MIX_InitFlags.MIX_INIT_ALL);
             Mix_OpenAudio(44100, DEFAULT_AUDIO_FORMAT, 2, 2048);
             Running = true;
         }

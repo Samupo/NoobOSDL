@@ -118,7 +118,6 @@ namespace NoobOSDL
 
         [DllImport(SDL.NATIVELIB, CallingConvention = CallingConvention.Cdecl)]
         private static extern void SDL_DestroyTexture(IntPtr texture);
-
     }
 
 }

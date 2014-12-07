@@ -1,0 +1,26 @@
+###IMPORTANT NOTES ON HOW TO USE NOOBOSDL###
+
+##MEMORY MANAGEMENT##
+
+All the loading of SDL resources should be made using the
+ResourceManager class. It's vital that you manually
+unload every loaded resource. A simple way to do so is
+by loading resources in the constructor and unloading them
+in the destructor.
+
+An example of the above could be:
+class Sprite {
+	Texture texture;
+	string texturePath;
+	public Sprite(string file) {
+		texturePath = file;
+		texture = ResourceManager.LoadTexture(texturePath);
+	}
+	
+	~Sprite() {
+		ResourceManager.UnloadTexture(texturePath);
+	}
+}
+
+By doing so, the ResourceManager will make sure the texture
+doesn't cause a memory leak in the future.

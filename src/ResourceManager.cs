@@ -89,19 +89,19 @@ namespace NoobOSDL
         /// <returns></returns>
         public static Texture LoadTexture(string file)
         {
+            StoredResource<Texture> sr;
             if (storedTextures.ContainsKey(file))
             {
-                StoredResource<Texture> sr;
                 storedTextures.TryGetValue(file, out sr);
-                sr.Uses++;
-                return sr.Resource;
+                if (sr != null)
+                {
+                    sr.Uses++;
+                    return sr.Resource;
+                }
             }
-            else
-            {
-                StoredResource<Texture> sr = new StoredResource<Texture>(DoLoadTexture(file));
-                storedTextures.Add(file, sr);
-                return sr.Resource;
-            }
+            sr = new StoredResource<Texture>(DoLoadTexture(file));
+            storedTextures.Add(file, sr);
+            return sr.Resource;
         }
 
         /// <summary>
@@ -155,19 +155,19 @@ namespace NoobOSDL
         /// <returns></returns>
         public static Audio LoadAudio(string file)
         {
+            StoredResource<Audio> sr;
             if (storedAudio.ContainsKey(file))
             {
-                StoredResource<Audio> sr;
                 storedAudio.TryGetValue(file, out sr);
-                sr.Uses++;
-                return sr.Resource;
+                if (sr != null)
+                {
+                    sr.Uses++;
+                    return sr.Resource;
+                }
             }
-            else
-            {
-                StoredResource<Audio> sr = new StoredResource<Audio>(DoLoadAudio(file));
-                storedAudio.Add(file, sr);
-                return sr.Resource;
-            }
+            sr = new StoredResource<Audio>(DoLoadAudio(file));
+            storedAudio.Add(file, sr);
+            return sr.Resource;
         }
 
         /// <summary>
@@ -204,19 +204,19 @@ namespace NoobOSDL
         /// <returns></returns>
         public static Music LoadMusic(string file)
         {
+            StoredResource<Music> sr;
             if (storedMusic.ContainsKey(file))
             {
-                StoredResource<Music> sr;
                 storedMusic.TryGetValue(file, out sr);
-                sr.Uses++;
-                return sr.Resource;
+                if (sr != null)
+                {
+                    sr.Uses++;
+                    return sr.Resource;
+                }
             }
-            else
-            {
-                StoredResource<Music> sr = new StoredResource<Music>(DoLoadMusic(file));
-                storedMusic.Add(file, sr);
-                return sr.Resource;
-            }
+            sr = new StoredResource<Music>(DoLoadMusic(file));
+            storedMusic.Add(file, sr);
+            return sr.Resource;
         }
 
         /// <summary>

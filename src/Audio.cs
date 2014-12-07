@@ -58,7 +58,7 @@ namespace NoobOSDL
         /// </summary>
         public void Play()
         {
-            Mix_PlayChannelTimed(-1, audioPtr, 1, -1);
+            Mix_PlayChannelTimed(-1, audioPtr, 0, -1);
         }
 
         ~Audio()

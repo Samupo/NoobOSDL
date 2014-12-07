@@ -42,7 +42,7 @@ using System.Threading.Tasks;
 
 namespace NoobOSDL
 {
-    public class StoredResource<T>
+    internal class StoredResource<T>
     {
         public T Resource;
         public int Uses;
@@ -54,9 +54,15 @@ namespace NoobOSDL
         }
     }
 
+    /// <summary>
+    /// Manages resource loading, storing and unloading. For every Load method a Unload one must be used.
+    /// </summary>
     public static class ResourceManager
     {
         private static Renderer renderer;
+        /// <summary>
+        /// Gets or sets the renderer the ResourceManager uses to create textures
+        /// </summary>
         public static Renderer AssignedRenderer
         {
             get
@@ -72,8 +78,15 @@ namespace NoobOSDL
                 renderer = value;
             }
         }
+
+        #region TEXTURES
         private static Dictionary<string, StoredResource<Texture>> storedTextures = new Dictionary<string, StoredResource<Texture>>();
 
+        /// <summary>
+        /// Loads a texture. If not unloaded later a memory leak will appear.
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         public static Texture LoadTexture(string file)
         {
             if (storedTextures.ContainsKey(file))
@@ -91,6 +104,10 @@ namespace NoobOSDL
             }
         }
 
+        /// <summary>
+        /// Unloads a texture. It's mandatory to call a Unload for each Load method used previously.
+        /// </summary>
+        /// <param name="file"></param>
         public static void UnloadTexture(string file)
         {
             StoredResource<Texture> sr;
@@ -124,9 +141,132 @@ namespace NoobOSDL
             Texture texture = new Texture(texturePtr, surfaceStruct.w, surfaceStruct.h);
             SDL_FreeSurface(loadedSurface);
             return texture;
-                
+
+        }
+        #endregion
+
+        #region AUDIO
+        private static Dictionary<string, StoredResource<Audio>> storedAudio = new Dictionary<string, StoredResource<Audio>>();
+
+        /// <summary>
+        /// Loads an audio clip. If not unloaded later a memory leak will appear.
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public static Audio LoadAudio(string file)
+        {
+            if (storedAudio.ContainsKey(file))
+            {
+                StoredResource<Audio> sr;
+                storedAudio.TryGetValue(file, out sr);
+                sr.Uses++;
+                return sr.Resource;
+            }
+            else
+            {
+                StoredResource<Audio> sr = new StoredResource<Audio>(DoLoadAudio(file));
+                storedAudio.Add(file, sr);
+                return sr.Resource;
+            }
         }
 
+        /// <summary>
+        /// Unloads an audio clip. It's mandatory to call a Unload for each Load method used previously.
+        /// </summary>
+        /// <param name="file"></param>
+        public static void UnloadAudio(string file)
+        {
+            StoredResource<Audio> sr;
+            storedAudio.TryGetValue(file, out sr);
+            if (sr != null)
+            {
+                sr.Uses--;
+                if (sr.Uses <= 0)
+                {
+                    storedAudio.Remove(file);
+                }
+            }
+        }
+
+        private static Audio DoLoadAudio(string file)
+        {
+            return new Audio(Mix_LoadWAV(file));
+        }
+        #endregion
+
+
+        #region MUSIC
+        private static Dictionary<string, StoredResource<Music>> storedMusic = new Dictionary<string, StoredResource<Music>>();
+        /// <summary>
+        /// Loads a music. If not unloaded later a memory leak will appear.
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public static Music LoadMusic(string file)
+        {
+            if (storedMusic.ContainsKey(file))
+            {
+                StoredResource<Music> sr;
+                storedMusic.TryGetValue(file, out sr);
+                sr.Uses++;
+                return sr.Resource;
+            }
+            else
+            {
+                StoredResource<Music> sr = new StoredResource<Music>(DoLoadMusic(file));
+                storedMusic.Add(file, sr);
+                return sr.Resource;
+            }
+        }
+
+        /// <summary>
+        /// Unloads a music. It's mandatory to call a Unload for each Load method used previously.
+        /// </summary>
+        /// <param name="file"></param>
+        public static void UnloadMusic(string file)
+        {
+            StoredResource<Music> sr;
+            storedMusic.TryGetValue(file, out sr);
+            if (sr != null)
+            {
+                sr.Uses--;
+                if (sr.Uses <= 0)
+                {
+                    storedMusic.Remove(file);
+                }
+            }
+        }
+
+        private static Music DoLoadMusic(string file)
+        {
+            return new Music(Mix_LoadMUS(file));
+
+        }
+        #endregion
+
+        #region NATIVE
+        [DllImport(SDL.NATIVELIB, EntryPoint = "SDL_RWFromFile", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr INTERNAL_SDL_RWFromFile(
+        [In()] [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUtf8StrMarshaler))]
+string file,
+        [In()] [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUtf8StrMarshaler))]
+string mode
+        );
+
+        [DllImport(SDL.MIXLIB, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr Mix_LoadWAV_RW(
+        IntPtr src,
+        int freesrc
+        );
+
+        private static IntPtr Mix_LoadWAV(string file)
+        {
+            IntPtr rwops = INTERNAL_SDL_RWFromFile(file, "rb");
+            return Mix_LoadWAV_RW(rwops, 1);
+        }
+
+        [DllImport(SDL.MIXLIB, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr Mix_LoadMUS([In()] [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUtf8StrMarshaler))] string file);
 
         [DllImport(SDL.IMGLIB, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr IMG_Load([In()] [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUtf8StrMarshaler))] string file);
@@ -141,5 +281,10 @@ namespace NoobOSDL
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUtf8StrMarshaler), MarshalCookie = LPUtf8StrMarshaler.LeaveAllocated)]
         private static extern string IMG_GetError();
 
+
+        [DllImport(SDL.MIXLIB, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUtf8StrMarshaler), MarshalCookie = LPUtf8StrMarshaler.LeaveAllocated)]
+        private static extern string Mix_GetError();
+        #endregion
     }
 }

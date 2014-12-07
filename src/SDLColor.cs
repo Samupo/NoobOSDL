@@ -43,15 +43,39 @@ namespace NoobOSDL
     {
         public byte r, g, b, a;
     }
+    /// <summary>
+    /// Represents an ARGB32 color
+    /// </summary>
     public class SDLColor
     {
+        /// <summary>
+        /// Red value
+        /// </summary>
         public byte R { get; set; }
+        /// <summary>
+        /// Green value
+        /// </summary>
         public byte G { get; set; }
+        /// <summary>
+        /// Blue value
+        /// </summary>
         public byte B { get; set; }
+        /// <summary>
+        /// Alpha value
+        /// </summary>
         public byte A { get; set; }
 
+        /// <summary>
+        /// Black {0,0,0,255}
+        /// </summary>
         public static SDLColor BLACK { get { return new SDLColor(0, 0, 0); } }
 
+        /// <summary>
+        /// Opaque color constructor (Alpha is 255)
+        /// </summary>
+        /// <param name="r"></param>
+        /// <param name="g"></param>
+        /// <param name="b"></param>
         public SDLColor(byte r, byte g, byte b)
         {
             R = r;
@@ -60,6 +84,13 @@ namespace NoobOSDL
             A = 255;
         }
         
+        /// <summary>
+        /// Transparent or semi-transparent color constructor
+        /// </summary>
+        /// <param name="r"></param>
+        /// <param name="g"></param>
+        /// <param name="b"></param>
+        /// <param name="a"></param>
         public SDLColor(byte r, byte g, byte b, byte a)
         {
             R = r;

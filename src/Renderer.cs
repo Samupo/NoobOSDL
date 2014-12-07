@@ -42,31 +42,86 @@ using System.Threading.Tasks;
 namespace NoobOSDL
 {
     #region UTILS
+    /// <summary>
+    /// Flip mode
+    /// </summary>
     public enum RendererFlip
     {
+        /// <summary>
+        /// Not flipped
+        /// </summary>
         NONE = 0x00000000,
+        /// <summary>
+        /// Flipped horizontally
+        /// </summary>
         FLIP_HORIZONTAL = 0x00000001,
+        /// <summary>
+        /// Flipped vertically
+        /// </summary>
         FLIP_VERTICAL = 0x00000002,
+        /// <summary>
+        /// Flipped both horizontally and vertically
+        /// </summary>
         FLIP_BOTH = FLIP_HORIZONTAL | FLIP_VERTICAL
     }
 
+    /// <summary>
+    /// Parameters that are needed to draw the text.
+    /// </summary>
     public class TextParameters
     {
+        /// <summary>
+        /// Font size
+        /// </summary>
         public int Size = 32;
+        /// <summary>
+        /// Font color
+        /// </summary>
         public SDLColor Color = SDLColor.BLACK;
+        /// <summary>
+        /// Determines how the text will be drawn in the rectangle
+        /// </summary>
         public enum TextFillType
         {
-            TFT_NO_FIT, TFT_BEST_FIT, TFT_SCALED_FIT, TFT_KEEP_ASPECT_SCALED_FIT
+            /// <summary>
+            /// Ignores the rectangle's width and height, only cares for the position. Current Rect will be overwritten to the new one.
+            /// </summary>
+            TFT_NO_FIT,
+            /// <summary>
+            /// Tries to make the text fit the designed Rect. It's very slow and resource consuming, avoid if possible.
+            /// </summary>
+            TFT_BEST_FIT,
+            /// <summary>
+            /// Scales the text to the rectangle.
+            /// </summary>
+            TFT_SCALED_FIT,
+            /// <summary>
+            /// Scales the text to the rectangle but without distorting it.
+            /// </summary>
+            TFT_KEEP_ASPECT_SCALED_FIT
         };
+        /// <summary>
+        /// Determines how the text will be drawn in the rectangle
+        /// </summary>
         public TextFillType TFT = TextFillType.TFT_NO_FIT;
+        /// <summary>
+        /// Rectangle where the text is going to be drawn
+        /// </summary>
         public Rect Rect = new Rect(0, 0, 320, 36);
     }
     #endregion
 
+    /// <summary>
+    /// A Renderer that draws in a Window.
+    /// </summary>
     public class Renderer
     {
         internal IntPtr rendererPtr { get; private set; }
         private SDLColor drawColor;
+
+        /// <summary>
+        /// Clear color of the Renderer
+        /// </summary>
         public SDLColor DrawColor
         {
             get { return drawColor; }
@@ -89,11 +144,17 @@ namespace NoobOSDL
             SDL_SetRenderDrawColor(rendererPtr, color.R, color.G, color.B, color.A);
         }
 
+        /// <summary>
+        /// Clears the screen filling it with the DrawColor
+        /// </summary>
         public void RenderClear()
         {
             SDL_RenderClear(rendererPtr);
         }
 
+        /// <summary>
+        /// Renders the screen to the assigned Window
+        /// </summary>
         public void RenderPresent()
         {
             SDL_RenderPresent(rendererPtr);
@@ -101,11 +162,21 @@ namespace NoobOSDL
         #endregion
 
         #region TEXTURES
+        /// <summary>
+        /// Draws a texture
+        /// </summary>
+        /// <param name="texture"></param>
         public void DrawTexture(Texture texture)
         {
             SDL_RenderCopy(this.rendererPtr, texture.texturePtr, IntPtr.Zero, IntPtr.Zero);
         }
 
+        /// <summary>
+        /// Draws a texture in the specified position
+        /// </summary>
+        /// <param name="texture"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
         public void DrawTexture(Texture texture, int x, int y)
         {
             SDL_Rect rect = new SDL_Rect();
@@ -116,16 +187,35 @@ namespace NoobOSDL
             SDL_RenderCopy(this.rendererPtr, texture.texturePtr, IntPtr.Zero, ref rect);
         }
 
+        /// <summary>
+        /// Draws a texture scaled in the specified destination
+        /// </summary>
+        /// <param name="texture"></param>
+        /// <param name="destination"></param>
         public void DrawTexture(Texture texture, Rect destination)
         {
             SDL_RenderCopy(this.rendererPtr, texture.texturePtr, IntPtr.Zero, ref destination.rect);
         }
 
+        /// <summary>
+        /// Draws a part of the texture in the specified destination
+        /// </summary>
+        /// <param name="texture"></param>
+        /// <param name="source"></param>
+        /// <param name="destination"></param>
         public void DrawTexture(Texture texture, Rect source, Rect destination)
         {
             SDL_RenderCopy(this.rendererPtr, texture.texturePtr, ref source.rect, ref destination.rect);
         }
 
+        /// <summary>
+        /// Draws a rotated and/or flipped part of a texture in the specified destination
+        /// </summary>
+        /// <param name="texture"></param>
+        /// <param name="source"></param>
+        /// <param name="destination"></param>
+        /// <param name="angle"></param>
+        /// <param name="flip"></param>
         public void DrawTexture(Texture texture, Rect source, Rect destination, double angle, RendererFlip flip)
         {
             SDL_RenderCopyEx(this.rendererPtr, texture.texturePtr, ref source.rect, ref destination.rect, angle, IntPtr.Zero, (uint)flip);
@@ -133,6 +223,12 @@ namespace NoobOSDL
         #endregion
 
         #region TEXT
+        /// <summary>
+        /// Draws a text on the screen
+        /// </summary>
+        /// <param name="text">String to draw</param>
+        /// <param name="fontPath">Relative path to the font</param>
+        /// <param name="textParams">Text params, cannot be null</param>
         public void DrawText(string text, string fontPath, TextParameters textParams)
         {
             using (Texture texture = CreateTextTexture(text, fontPath, textParams))

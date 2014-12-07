@@ -53,6 +53,12 @@ namespace TestProject
             renderer.DrawColor = SDLColor.BLACK;
 
             SDLEvents.MouseMovement += SDLEvents_MouseMovement;
+            Music music =  ResourceManager.LoadMusic("music.mp3");
+            music.PlayFadeIn(10000);
+
+            Audio audio = ResourceManager.LoadAudio("audio.wav");
+            audio.Play();
+
 
             Texture texture = ResourceManager.LoadTexture("myimg.png");
             int x = -60;
@@ -71,7 +77,7 @@ namespace TestProject
                 TextParameters tp = new TextParameters();
                 tp.Color = new SDLColor(255,255,255,255);
                 renderer.DrawText("Hello World!", "consola.ttf", tp);
-                renderer.DrawTexture(texture, new Rect(x, 20, 60, 60));
+                renderer.DrawTexture(texture, new Rect(0,0, texture.Width, texture.Height), new Rect(x, 80, 60, 60), x, RendererFlip.NONE);
 
                 renderer.RenderPresent();
                 SDL.Delay(8);

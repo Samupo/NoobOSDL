@@ -40,51 +40,35 @@ using System.Threading.Tasks;
 
 namespace NoobOSDL
 {
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct SDL_Rect
-    {
-        public int x;
-        public int y;
-        public int w;
-        public int h;
-    }
-
     /// <summary>
-    /// Represents a rectangle.
+    /// An audio clip that can be played.
     /// </summary>
-    public class Rect
+    public class Audio
     {
-        internal SDL_Rect rect;
-        /// <summary>
-        /// X position. Origin top-left.
-        /// </summary>
-        public int X { get { return rect.x; } set { rect.x = value; } }
-        /// <summary>
-        /// Y position. Origin top-left.
-        /// </summary>
-        public int Y { get { return rect.y; } set { rect.y = value; } }
-        /// <summary>
-        /// Width of the rectangle.
-        /// </summary>
-        public int Width { get { return rect.w; } set { rect.w = value; } }
-        /// <summary>
-        /// Height of the rectangle.
-        /// </summary>
-        public int Height { get { return rect.h; } set { rect.h = value; } }
+        internal IntPtr audioPtr { get; private set; }
+
+        internal Audio(IntPtr audio)
+        {
+            audioPtr = audio;
+        }
 
         /// <summary>
-        /// Rectangle constructor.
+        /// Plays the audio clip.
         /// </summary>
-        /// <param name="x">X position</param>
-        /// <param name="y">Y position</param>
-        /// <param name="width">Width</param>
-        /// <param name="height">Height</param>
-        public Rect(int x, int y, int width, int height)
+        public void Play()
         {
-            X = x;
-            Y = y;
-            Width = width;
-            Height = height;
+            Mix_PlayChannelTimed(-1, audioPtr, 1, -1);
         }
+
+        ~Audio()
+        {
+            Mix_FreeChunk(audioPtr);
+        }
+
+        [DllImport(SDL.MIXLIB, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int Mix_PlayChannelTimed(int channel, IntPtr audio, int loops, int ticks);
+
+        [DllImport(SDL.MIXLIB, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void Mix_FreeChunk(IntPtr audio);
     }
 }

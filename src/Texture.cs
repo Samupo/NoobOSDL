@@ -63,12 +63,21 @@ namespace NoobOSDL
         }
     }
     
+    /// <summary>
+    /// Represents a texture that is stored in memory.
+    /// </summary>
     public class Texture : IDisposable
     {
         private bool disposed = false;
         internal IntPtr texturePtr { get; private set; }
         //internal string rid;
+        /// <summary>
+        /// Gets the texture width
+        /// </summary>
         public int Width { get; private set; }
+        /// <summary>
+        /// Gets the texture height
+        /// </summary>
         public int Height { get; private set; }
 
         internal Texture(IntPtr texture, int w, int h)
@@ -85,6 +94,9 @@ namespace NoobOSDL
             Dispose(false);
         }
 
+        /// <summary>
+        /// Disposes the texture and frees its memory
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);

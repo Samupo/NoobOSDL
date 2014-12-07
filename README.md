@@ -1,6 +1,9 @@
 NoobOSDL
 ========
 
+This project requires the SDL2 dlls to be in the executable path.
+The following is required: SDL2, SDL2 Image, SDL2 Mixer, SDL2 TTF
+
 NoobOSDL License
 
 Copyright (c) 2014 Sergio Alonso

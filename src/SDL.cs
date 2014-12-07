@@ -48,6 +48,7 @@ namespace NoobOSDL
         internal const string NATIVELIB = "SDL2.dll";
         internal const string IMGLIB = "SDL2_image.dll";
         internal const string TTFLIB = "SDL2_ttf.dll";
+        internal const string MIXLIB = "SDL2_mixer.dll";
 
         #region STATIC VARS
         private static List<Window> windows = new List<Window>();
@@ -58,13 +59,16 @@ namespace NoobOSDL
         #endregion
 
         #region SDL ENUMS & SDL VARS
-        public enum InitializeModule
+        internal enum InitializeModule
         {
             INIT_TIMER = 0x00000001,
             INIT_AUDIO = 0x00000010,
             INIT_VIDEO = 0x00000020
         }
 
+        /// <summary>
+        /// For a normal Window you should use SDL_WINDOW_SHOWN
+        /// </summary>
         public enum WindowMode
         {
             SDL_WINDOW_FULLSCREEN = 0x00000001,
@@ -84,6 +88,9 @@ namespace NoobOSDL
             SDL_WINDOW_ALLOW_HIGHDPI = 0x00002000
         }
 
+        /// <summary>
+        /// Mode of rendering
+        /// </summary>
         public enum RenderMode
         {
             SDL_RENDERER_SOFTWARE = 0x00000001,
@@ -92,13 +99,25 @@ namespace NoobOSDL
             SDL_RENDERER_TARGETTEXTURE = 0x00000008
         }
 
-        public enum ImageMode
+        internal enum ImageMode
         {
             IMG_INIT_JPG = 0x00000001,
             IMG_INIT_PNG = 0x00000002,
             IMG_INIT_TIF = 0x00000004,
             IMG_INIT_WEBP = 0x00000008
         }
+
+        internal enum MIX_InitFlags
+        {
+            MIX_INIT_FLAC = 0x00000001,
+            MIX_INIT_MOD = 0x00000002,
+            MIX_INIT_MP3 = 0x00000004,
+            MIX_INIT_OGG = 0x00000008,
+            MIX_INIT_FLUIDSYNTH = 0x00000010,
+            MIX_INIT_ALL = MIX_INIT_FLAC | MIX_INIT_FLUIDSYNTH | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG
+        }
+
+        public const ushort DEFAULT_AUDIO_FORMAT = 0x8010;
 
 
         #endregion
@@ -138,10 +157,16 @@ namespace NoobOSDL
 
         [DllImport(TTFLIB, CallingConvention = CallingConvention.Cdecl)]
         private static extern int TTF_Init();
+
+        [DllImport(MIXLIB, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int Mix_OpenAudio(int frequency, UInt16 format, int channels, int chunksize);
+
+        [DllImport(MIXLIB, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int Mix_Init(uint flags);
         #endregion
 
         #region SIMPLIFIED CALLS
-        public static void Initialize(InitializeModule init)
+        private static void Initialize(InitializeModule init)
         {
             if (SDL_Init((uint)init) < 0)
             {
@@ -149,14 +174,29 @@ namespace NoobOSDL
             }
         }
 
+        /// <summary>
+        /// Initializes the SDL engine. Should be called before using anything related to SDL.
+        /// </summary>
         public static void InitializeAll()
         {
-            Initialize(InitializeModule.INIT_VIDEO);
+            Initialize(InitializeModule.INIT_VIDEO | InitializeModule.INIT_AUDIO);
             IMG_Init((uint)ImageMode.IMG_INIT_PNG);
             TTF_Init();
+            Console.WriteLine(Mix_Init((uint)MIX_InitFlags.MIX_INIT_ALL));
+            Mix_OpenAudio(44100, DEFAULT_AUDIO_FORMAT, 2, 2048);
             Running = true;
         }
 
+        /// <summary>
+        /// Creates a Window on the specified position with the specified flags
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="modes"></param>
+        /// <returns></returns>
         public static Window CreateWindow(string title, int x, int y, int width, int height, params WindowMode[] modes)
         {
             uint flags = 0;
@@ -171,12 +211,27 @@ namespace NoobOSDL
             return window;
         }
 
+        /// <summary>
+        /// Creates a Window with the specified flags
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="modes"></param>
+        /// <returns></returns>
         public static Window CreateWindow(string title, int width, int height, params WindowMode[] modes) {
             int x = 0x1FFF0000;
             int y = 0x1FFF0000;
             return CreateWindow(title, x, y, width, height, modes);
         }
 
+        /// <summary>
+        /// Creates a Renderer to draw in the specified window
+        /// </summary>
+        /// <param name="window"></param>
+        /// <param name="index"></param>
+        /// <param name="mode"></param>
+        /// <returns></returns>
         public static Renderer CreateRenderer(Window window, int index, RenderMode mode)
         {
             IntPtr rendererPtr = SDL_CreateRenderer(window.windowPtr, index, (uint)mode);
@@ -189,6 +244,9 @@ namespace NoobOSDL
             return renderer;
         }
 
+        /// <summary>
+        /// Stops all SDL functionality
+        /// </summary>
         public static void Quit()
         {
             foreach (Renderer renderer in renderers) {
@@ -205,11 +263,19 @@ namespace NoobOSDL
             Running = false;
         }
 
+        /// <summary>
+        /// Delays the code by a certain amount
+        /// </summary>
+        /// <param name="ms"></param>
         public static void Delay(UInt32 ms)
         {
             SDL_Delay(ms);
         }
 
+        /// <summary>
+        /// Gets the number of milliseconds elapsed since SDL initialization
+        /// </summary>
+        /// <returns></returns>
         public static UInt32 GetTicks()
         {
             return SDL_GetTicks();

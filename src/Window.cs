@@ -40,9 +40,15 @@ using System.Threading.Tasks;
 
 namespace NoobOSDL
 {
+    /// <summary>
+    /// This class represents a Window where a Renderer can draw
+    /// </summary>
     public class Window
     {
         internal IntPtr windowPtr { get; private set; }
+        /// <summary>
+        /// Width of the window
+        /// </summary>
         public int Width
         {
             get
@@ -52,6 +58,9 @@ namespace NoobOSDL
                 return w;
             }
         }
+        /// <summary>
+        /// Height of the window
+        /// </summary>
         public int Height
         {
             get

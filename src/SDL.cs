@@ -53,8 +53,17 @@ namespace NoobOSDL
         #region STATIC VARS
         private static List<Window> windows = new List<Window>();
         private static List<Renderer> renderers = new List<Renderer>();
+        /// <summary>
+        /// Returns an array of opened windows
+        /// </summary>
         public static Window[] Windows { get { return windows.ToArray(); } }
+        /// <summary>
+        /// Returns an array of active renderers
+        /// </summary>
         public static Renderer[] Renderers { get { return renderers.ToArray(); } }
+        /// <summary>
+        /// Determines if SDL funcionality is active
+        /// </summary>
         public static bool Running { get; private set; }
         #endregion
 
@@ -91,7 +100,7 @@ namespace NoobOSDL
         /// <summary>
         /// Mode of rendering
         /// </summary>
-        public enum RenderMode
+        internal enum RenderMode
         {
             SDL_RENDERER_SOFTWARE = 0x00000001,
             SDL_RENDERER_ACCELERATED = 0x00000002,
@@ -226,14 +235,13 @@ namespace NoobOSDL
             return CreateWindow(title, x, y, width, height, modes);
         }
 
-        /// <summary>
-        /// Creates a Renderer to draw in the specified window
-        /// </summary>
-        /// <param name="window"></param>
-        /// <param name="index"></param>
-        /// <param name="mode"></param>
-        /// <returns></returns>
-        public static Renderer CreateRenderer(Window window, int index, RenderMode mode)
+        internal static void DoCloseWindow(Window window)
+        {
+            windows.Remove(window);
+            SDL_DestroyWindow(window.windowPtr);
+        }
+
+        private static Renderer CreateRenderer(Window window, int index, RenderMode mode)
         {
             IntPtr rendererPtr = SDL_CreateRenderer(window.windowPtr, index, (uint)mode);
             if (rendererPtr == IntPtr.Zero)
@@ -243,6 +251,22 @@ namespace NoobOSDL
             Renderer renderer = new Renderer(rendererPtr);
             renderers.Add(renderer);
             return renderer;
+        }
+
+        /// <summary>
+        /// Creates a Renderer to draw in the specified window
+        /// </summary>
+        /// <param name="window"></param>
+        /// <returns></returns>
+        public static Renderer CreateRenderer(Window window)
+        {
+            return CreateRenderer(window, -1, RenderMode.SDL_RENDERER_ACCELERATED);
+        }
+
+        internal static void DoDestroyRenderer(Renderer renderer)
+        {
+            renderers.Remove(renderer);
+            SDL_DestroyRenderer(renderer.rendererPtr);
         }
 
         /// <summary>

@@ -76,6 +76,14 @@ namespace NoobOSDL
             this.windowPtr = windowPtr;
         }
 
+        /// <summary>
+        /// Closes the window
+        /// </summary>
+        public void Close()
+        {
+            SDL.DoCloseWindow(this);
+        }
+
         [DllImport(SDL.NATIVELIB, CallingConvention = CallingConvention.Cdecl)]
         private static extern void SDL_GetWindowSize(IntPtr window, out int w, out int h);
     }

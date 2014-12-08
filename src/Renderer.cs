@@ -145,6 +145,14 @@ namespace NoobOSDL
         }
 
         /// <summary>
+        /// Destroys the renderer
+        /// </summary>
+        public void Destroy()
+        {
+            SDL.DoDestroyRenderer(this);
+        }
+
+        /// <summary>
         /// Clears the screen filling it with the DrawColor
         /// </summary>
         public void RenderClear()
@@ -334,7 +342,7 @@ namespace NoobOSDL
             return texture;
         }
 
-        private Texture CreateTextTextureBestFit(string text, string fontPath, TextParameters textParams)
+        private unsafe Texture CreateTextTextureBestFit(string text, string fontPath, TextParameters textParams)
         {
             String[] words = text.Split(' ');
             IntPtr[] textures = new IntPtr[words.GetLength(0)];
@@ -358,7 +366,7 @@ namespace NoobOSDL
 #endif
 
             // Create surface
-            SDL_Surface textSurface = new SDL_Surface();
+            IntPtr textSurface = IntPtr.Zero;
             // Get line height
             int height = 0;
             for (int i = 0; i < words.GetLength(0); i++)
@@ -371,13 +379,13 @@ namespace NoobOSDL
             float size = 1;
             while (!done)
             {
-                textSurface = (SDL_Surface)Marshal.PtrToStructure(SDL_CreateRGBSurface(0, (int)((float)textParams.Rect.Width * size), (int)((float)textParams.Rect.Height * size), 32, rmask, gmask, bmask, amask), typeof(SDL_Surface));
+                textSurface = SDL_CreateRGBSurface(0, (int)((float)textParams.Rect.Width * size), (int)((float)textParams.Rect.Height * size), 32, rmask, gmask, bmask, amask);
                 int accWidth = 0;
                 int line = 0;
                 for (int i = 0; i < words.GetLength(0); i++)
                 {
                     SDL_Surface sdl_surface = SDL_Surface.FromIntPtr(textures[i]);
-                    if (accWidth + sdl_surface.w > textSurface.w)
+                    if (accWidth + sdl_surface.w > textParams.Rect.Width)
                     {
                         line++;
                         accWidth = 0;
@@ -387,11 +395,11 @@ namespace NoobOSDL
                     r.y = line * height;
                     r.w = sdl_surface.w;
                     r.h = sdl_surface.h;
-                    SDL_BlitSurface(textures[i], IntPtr.Zero, textSurface, ref r);
+                    SDL_BlitSurface(textures[i], ref sdl_surface.clip_rect, textSurface, ref r);
                     accWidth += sdl_surface.w;
                 }
 
-                if (line * height + height < textSurface.h) done = true;
+                if (line * height + height < textParams.Rect.Height) done = true;
                 if (!done)
                 {
                     size += 0.1f;
@@ -411,7 +419,7 @@ namespace NoobOSDL
             }
 
             //Get image dimensions
-            Texture texture = new Texture(sdlTexture, textSurface.w, textSurface.h);
+            Texture texture = new Texture(sdlTexture, textParams.Rect.Width, textParams.Rect.Height);
             //Get rid of old surface
             SDL_FreeSurface(textSurface);
             return texture;
@@ -443,8 +451,8 @@ namespace NoobOSDL
         [DllImport(SDL.NATIVELIB, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr SDL_CreateTextureFromSurface(IntPtr renderer, SDL_Surface surface);
 
-        [DllImport(SDL.NATIVELIB, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void SDL_BlitSurface(IntPtr surface, IntPtr srcrect, SDL_Surface dest, ref SDL_Rect destrect);
+        [DllImport(SDL.NATIVELIB, EntryPoint = "SDL_UpperBlit", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int SDL_BlitSurface(IntPtr src, ref SDL_Rect srcrect, IntPtr dst, ref SDL_Rect dstrect);
 
         [DllImport(SDL.NATIVELIB, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr SDL_CreateRGBSurface(UInt32 flags, int width, int height, int depth, UInt32 Rmask, UInt32 Gmask, UInt32 Bmask, UInt32 Amask);

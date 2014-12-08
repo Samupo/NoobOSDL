@@ -50,7 +50,7 @@ namespace TestProject
             // SDL initializaton
             SDL.InitializeAll();
             Window window = SDL.CreateWindow("Title", 640, 480, SDL.WindowMode.SDL_WINDOW_SHOWN);
-            Renderer renderer = SDL.CreateRenderer(window, -1, SDL.RenderMode.SDL_RENDERER_ACCELERATED);
+            Renderer renderer = SDL.CreateRenderer(window);
             renderer.DrawColor = SDLColor.BLACK;
 
             // Event initialization

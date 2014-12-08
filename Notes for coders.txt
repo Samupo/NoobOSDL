@@ -1,5 +1,7 @@
 ###IMPORTANT NOTES ON HOW TO USE NOOBOSDL###
 
+Check wiki for more information.
+
 ##MEMORY MANAGEMENT##
 
 All the loading of SDL resources should be made using the

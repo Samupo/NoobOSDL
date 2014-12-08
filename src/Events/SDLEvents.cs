@@ -64,7 +64,7 @@ namespace NoobOSDL.Events
 
     public class MouseMotionEventArgs : EventArgs
     {
-        
+
         public int X { get; private set; }
         public int Y { get; private set; }
         public uint WindowID { get; private set; }
@@ -80,7 +80,8 @@ namespace NoobOSDL.Events
     }
 
     public class MouseButtonEventArgs : EventArgs
-    {public enum Mode
+    {
+        public enum Mode
         {
             PRESSED,
             RELEASED
@@ -100,15 +101,27 @@ namespace NoobOSDL.Events
         }
     }
 
+    public class QuitEventArgs : EventArgs
+    {
+        public uint Timestamp { get; private set; }
+
+        public QuitEventArgs(uint timestamp)
+        {
+            this.Timestamp = timestamp;
+        }
+    }
+
     public abstract class SDLEvents
     {
         public delegate void KeyboardEventHandler(object sender, KeyboardEventArgs e);
         public delegate void MouseMovementHandler(object sender, MouseMotionEventArgs e);
         public delegate void MouseButtonHandler(object sender, MouseButtonEventArgs e);
+        public delegate void QuitHandler(object sender, QuitEventArgs e);
 
         public static event KeyboardEventHandler Keyboard;
         public static event MouseButtonHandler MouseButton;
         public static event MouseMovementHandler MouseMovement;
+        public static event QuitHandler Quit;
 
         public static List<SDL_Event> PollAllEvents()
         {
@@ -120,27 +133,32 @@ namespace NoobOSDL.Events
                 if (e.type == SDL_EventType.SDL_KEYDOWN)
                 {
                     if (Keyboard != null)
-                    Keyboard(null, new KeyboardEventArgs(KeyboardEventArgs.Mode.PRESSED, e.key.keysym.sym, e.key.keysym.mod, e.key.repeat > 0));
+                        Keyboard(null, new KeyboardEventArgs(KeyboardEventArgs.Mode.PRESSED, e.key.keysym.sym, e.key.keysym.mod, e.key.repeat > 0));
                 }
                 else if (e.type == SDL_EventType.SDL_KEYUP)
                 {
                     if (Keyboard != null)
-                    Keyboard(null, new KeyboardEventArgs(KeyboardEventArgs.Mode.RELEASED, e.key.keysym.sym, e.key.keysym.mod, e.key.repeat > 0));
+                        Keyboard(null, new KeyboardEventArgs(KeyboardEventArgs.Mode.RELEASED, e.key.keysym.sym, e.key.keysym.mod, e.key.repeat > 0));
                 }
                 else if (e.type == SDL_EventType.SDL_MOUSEMOTION)
                 {
                     if (MouseMovement != null)
-                    MouseMovement(null, new MouseMotionEventArgs(e.motion.x, e.motion.y, e.motion.windowID, e.motion.which));
+                        MouseMovement(null, new MouseMotionEventArgs(e.motion.x, e.motion.y, e.motion.windowID, e.motion.which));
                 }
                 else if (e.type == SDL_EventType.SDL_MOUSEBUTTONUP)
                 {
                     if (MouseButton != null)
-                    MouseButton(null, new MouseButtonEventArgs(MouseButtonEventArgs.Mode.RELEASED, e.button.button, e.button.windowID, e.button.which, e.button.clicks));
+                        MouseButton(null, new MouseButtonEventArgs(MouseButtonEventArgs.Mode.RELEASED, e.button.button, e.button.windowID, e.button.which, e.button.clicks));
                 }
                 else if (e.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
                 {
                     if (MouseButton != null)
-                    MouseButton(null, new MouseButtonEventArgs(MouseButtonEventArgs.Mode.PRESSED, e.button.button, e.button.windowID, e.button.which, e.button.clicks));
+                        MouseButton(null, new MouseButtonEventArgs(MouseButtonEventArgs.Mode.PRESSED, e.button.button, e.button.windowID, e.button.which, e.button.clicks));
+                }
+                else if (e.type == SDL_EventType.SDL_QUIT)
+                {
+                    if (Quit != null)
+                        Quit(null, new QuitEventArgs(e.quit.timestamp));
                 }
             }
             return list;

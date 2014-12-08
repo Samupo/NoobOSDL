@@ -41,7 +41,8 @@ namespace NoobOSDL
 {
     class SDLException : Exception
     {
-        public SDLException(string message) : base(message)
+        public SDLException(string message)
+            : base(message)
         {
 
         }

@@ -62,7 +62,7 @@ namespace NoobOSDL
             else
             {
                 Mix_FadeOutMusic(fadeTime / 2);
-                Mix_FadeInMusicPos(musicPtr, loops, fadeTime/2, startPos);
+                Mix_FadeInMusicPos(musicPtr, loops, fadeTime / 2, startPos);
             }
             Playing = true;
         }

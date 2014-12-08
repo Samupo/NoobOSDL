@@ -122,6 +122,32 @@ namespace NoobOSDL
             }
         }
 
+        /// <summary>
+        /// [Advanced feature] Clones a texture to a new reference. Use it when having conflicts after changing texture blend mode or opacity. If reference already is marked as loaded it will load reference.
+        /// </summary>
+        /// <param name="file">Path of the texture</param>
+        /// <param name="reference">New reference for the texture</param>
+        /// <returns>A copy of that texture</returns>
+        public static Texture CloneTexture(string file, string reference)
+        {
+            Texture texture;
+            StoredResource<Texture> sr;
+            if (storedTextures.ContainsKey(file))
+            {
+                storedTextures.TryGetValue(file, out sr);
+                if (sr != null)
+                {
+                    sr.Uses++;
+                    return sr.Resource;
+                }
+            }
+            texture = DoLoadTexture(file);
+            sr = new StoredResource<Texture>(texture);
+            storedTextures.Add(reference, sr);
+            UnloadTexture(file);
+            return sr.Resource;
+        }
+
         private static Texture DoLoadTexture(string file)
         {
             IntPtr texturePtr = IntPtr.Zero;

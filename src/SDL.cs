@@ -128,7 +128,7 @@ namespace NoobOSDL
         private static extern int SDL_Init(uint flags);
 
         [DllImport(NATIVELIB, CallingConvention = CallingConvention.Cdecl)]
-        [return : MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUtf8StrMarshaler), MarshalCookie = LPUtf8StrMarshaler.LeaveAllocated)]
+        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(LPUtf8StrMarshaler), MarshalCookie = LPUtf8StrMarshaler.LeaveAllocated)]
         private static extern string SDL_GetError();
 
         [DllImport(NATIVELIB, CallingConvention = CallingConvention.Cdecl)]
@@ -219,7 +219,8 @@ namespace NoobOSDL
         /// <param name="height"></param>
         /// <param name="modes"></param>
         /// <returns></returns>
-        public static Window CreateWindow(string title, int width, int height, params WindowMode[] modes) {
+        public static Window CreateWindow(string title, int width, int height, params WindowMode[] modes)
+        {
             int x = 0x1FFF0000;
             int y = 0x1FFF0000;
             return CreateWindow(title, x, y, width, height, modes);
@@ -249,11 +250,13 @@ namespace NoobOSDL
         /// </summary>
         public static void Quit()
         {
-            foreach (Renderer renderer in renderers) {
+            foreach (Renderer renderer in renderers)
+            {
                 SDL_DestroyRenderer(renderer.rendererPtr);
             }
             renderers.Clear();
-            foreach (Window window in windows) {
+            foreach (Window window in windows)
+            {
                 SDL_DestroyWindow(window.windowPtr);
             }
             windows.Clear();

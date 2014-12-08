@@ -83,7 +83,7 @@ namespace NoobOSDL
             B = b;
             A = 255;
         }
-        
+
         /// <summary>
         /// Transparent or semi-transparent color constructor
         /// </summary>

@@ -62,12 +62,36 @@ namespace NoobOSDL
             return (SDL_Surface)Marshal.PtrToStructure(data, typeof(SDL_Surface));
         }
     }
-    
+
     /// <summary>
     /// Represents a texture that is stored in memory.
     /// </summary>
     public class Texture : IDisposable
     {
+        /// <summary>
+        /// Texture blending mode
+        /// </summary>
+        public enum BlendModeEnum
+        {
+            /// <summary>
+            /// Completely opaque
+            /// </summary>
+            NONE = 0x00000000,
+            /// <summary>
+            /// Uses texture alpha channel to draw
+            /// </summary>
+            ALPHA_BLEND = 0x00000001,
+            /// <summary>
+            /// Additive blending [dstRGB = (srcRGB*srcA) + dstRGB)]
+            /// </summary>
+            ADDITIVE = 0x00000002,
+            /// <summary>
+            /// Color modulate [dstRGB = srcRGB * dstRGB]
+            /// </summary>
+            MODULATE = 0x00000004
+        }
+
+
         private bool disposed = false;
         internal IntPtr texturePtr { get; private set; }
         //internal string rid;
@@ -79,6 +103,14 @@ namespace NoobOSDL
         /// Gets the texture height
         /// </summary>
         public int Height { get; private set; }
+        /// <summary>
+        /// Gets or sets the opacity (0 is fully transparent and 255 is opaque)
+        /// </summary>
+        public byte Opacity { get { byte b; SDL_GetTextureAlphaMod(texturePtr, out b); return b; } set { SDL_SetTextureAlphaMod(texturePtr, value); } }
+        /// <summary>
+        /// Blending mode
+        /// </summary>
+        public BlendModeEnum BlendMode { get { uint mode; SDL_GetTextureBlendMode(texturePtr, out mode); return (BlendModeEnum)mode; } set { SDL_SetTextureBlendMode(texturePtr, (uint)value); } }
 
         internal Texture(IntPtr texture, int w, int h)
         {
@@ -93,6 +125,7 @@ namespace NoobOSDL
             SDL_DestroyTexture(texturePtr);
             Dispose(false);
         }
+
 
         /// <summary>
         /// Disposes the texture and frees its memory
@@ -118,6 +151,18 @@ namespace NoobOSDL
 
         [DllImport(SDL.NATIVELIB, CallingConvention = CallingConvention.Cdecl)]
         private static extern void SDL_DestroyTexture(IntPtr texture);
+
+        [DllImport(SDL.NATIVELIB, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int SDL_SetTextureAlphaMod(IntPtr texture, byte alpha);
+
+        [DllImport(SDL.NATIVELIB, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int SDL_GetTextureAlphaMod(IntPtr texture, out byte alpha);
+
+        [DllImport(SDL.NATIVELIB, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int SDL_SetTextureBlendMode(IntPtr texture, uint alpha);
+
+        [DllImport(SDL.NATIVELIB, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int SDL_GetTextureBlendMode(IntPtr texture, out uint alpha);
     }
 
 }
